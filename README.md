@@ -12,39 +12,62 @@ Agent SDK desk that searches LinkedIn, applies on Easy Apply **and** company ATS
 
 LinkedIn has no public apply API for candidates, so apply runs in **your** Chrome. A cloud/hosted agent cannot finish LinkedIn login or 2FA. Automated use can also get a LinkedIn account restricted; keep the daily cap (15) and the per-job approval on Submit.
 
-## One-time LinkedIn login (laptop)
+## Laptop setup (copy each block)
 
-Install browsers, then pick one session method.
+Run these in **Terminal.app**, one block at a time. `npm install` only works after you `cd` into the repo. `login` and `dev` are two separate commands.
+
+### 1. Get the project
 
 ```bash
+cd ~
+git clone https://github.com/kishore7cm/Akshaya-Job-Search.git
+cd Akshaya-Job-Search
+git checkout cursor/job-search-agents-9f9b
 npm install
 npx playwright install chromium
+```
+
+If the repo is already cloned, skip `git clone` and `cd` into that folder instead of `~`.
+
+### 2. Cursor login (once)
+
+```bash
+cd ~/Akshaya-Job-Search
 npx --yes "@grok/agent-sdk@0.4.0" login
 ```
 
-**Option A — attach to Chrome you already use**
+Finish the browser sign-in it opens. Then:
+
+### 3. Chrome with debug port
+
+Quit Chrome completely first (**Cmd+Q**). If it is already running, this next line only opens a tab and the agent cannot attach.
 
 ```bash
-# macOS
+osascript -e 'quit app "Google Chrome"'
+sleep 2
+mkdir -p "$HOME/.akshaya-job-search/chrome-profile"
 /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome \
   --remote-debugging-port=9222 \
   --user-data-dir="$HOME/.akshaya-job-search/chrome-profile"
 ```
 
-Log into LinkedIn in that window. In the same shell:
+Leave that window open. Log into LinkedIn there. Confirm the debug port is up:
 
 ```bash
+curl -s http://127.0.0.1:9222/json/version
+```
+
+You should see JSON with `"Browser": "Chrome/..."`. If `curl` fails, Chrome did not start with the debug port — quit Chrome and run step 3 again.
+
+### 4. Start the agent (new Terminal tab)
+
+```bash
+cd ~/Akshaya-Job-Search
 export LINKEDIN_CDP_URL=http://127.0.0.1:9222
 npx --yes "@grok/agent-sdk@0.4.0" dev
 ```
 
-**Option B — agent-owned window**
-
-```bash
-npx --yes "@grok/agent-sdk@0.4.0" dev
-```
-
-In the playground: “Log into LinkedIn”. Complete 2FA in the browser it opens. Optional env (never pass these as chat/tool input): `LINKEDIN_EMAIL`, `LINKEDIN_PASSWORD`.
+Open the playground URL it prints. Prompt: “Search LinkedIn for customer success roles in the Bay Area and remote.”
 
 Akshaya Ramprasad's resume is seeded (`profile` get, `bot/sandbox/workspace/resume.md`, and the PDF for uploads). Work authorization is **H-4 EAD**; employer sponsorship is not required. She **cannot relocate** (Fremont / Bay Area / remote only).
 
