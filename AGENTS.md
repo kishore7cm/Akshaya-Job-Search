@@ -18,17 +18,17 @@ Run the CLI under Node, never Bun.
 
 ## Layout
 
-- `bot/instructions.md` routes to `scout`, `writer`, and `tracker`.
-- `bot/tools/profile.ts`, `pipeline.ts`, and `application_packet.ts` own durable state in `ctx.host.kv`.
+- `bot/instructions.md` routes to `scout`, `writer`, `applier`, and `tracker`.
+- `bot/tools/linkedin_session.ts`, `linkedin_search.ts`, and `linkedin_apply.ts` drive Easy Apply on a local Chrome session.
+- `bot/lib/linkedin.ts` owns search URLs, answer mapping, and the daily cap.
 - `bot/lib/store.ts` is the status machine and JSON store. Never discovered.
 - `evals/` is filesystem evals (`evals/evals.config.ts` required).
-  Not `bot/evals/`. That path is ignored.
 
 ## Do not
 
-- Auto-submit applications or add browser automation against job boards.
-- Grow host TypeScript for matching copy or cover-letter prose. That stays in skills.
-- Add npm deps on a first cut. Stick to what `@grok/agent-sdk` already ships.
+- Pass LinkedIn passwords as tool arguments or commit `storage-state`.
+- Guess required Easy Apply answers. Block and ask.
+- Bypass CAPTCHA, 2FA, or LinkedIn rate limits.
 - Point `serve` at a parent folder during bring-up. It mounts every sibling.
 
 ## Pointers

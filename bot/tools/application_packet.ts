@@ -7,8 +7,8 @@ export default defineTool({
   description: prompt`
     Store or load the tailored resume, cover letter, and screening answers
     for one job. Saving a packet moves sourced or shortlisted jobs to drafted.
-    This does not submit the application. The human still applies on the
-    employer site, then pipeline set_status applied.
+    Screening answers are reused by linkedin_apply. This tool does not click
+    Submit.
   `,
   inputSchema: z.object({
     action: z.enum(["get", "save"]),
@@ -42,7 +42,7 @@ export default defineTool({
       saved: true,
       job: result.job,
       packet: result.packet,
-      reminder: "Do not submit this packet. Ask the human to apply, then mark applied.",
+      reminder: "Packet saved. Use linkedin_apply to submit Easy Apply jobs.",
     };
   },
 });

@@ -17,9 +17,9 @@ export const JOB_STATUSES = [
 export type JobStatus = (typeof JOB_STATUSES)[number];
 
 const TRANSITIONS: Record<JobStatus, readonly JobStatus[]> = {
-  sourced: ["shortlisted", "drafted", "rejected", "withdrawn"],
-  shortlisted: ["drafted", "ready_to_apply", "sourced", "rejected", "withdrawn"],
-  drafted: ["ready_to_apply", "shortlisted", "rejected", "withdrawn"],
+  sourced: ["shortlisted", "drafted", "ready_to_apply", "applied", "rejected", "withdrawn"],
+  shortlisted: ["drafted", "ready_to_apply", "applied", "sourced", "rejected", "withdrawn"],
+  drafted: ["ready_to_apply", "applied", "shortlisted", "rejected", "withdrawn"],
   ready_to_apply: ["applied", "drafted", "rejected", "withdrawn"],
   applied: ["interviewing", "rejected", "withdrawn", "offer"],
   interviewing: ["offer", "rejected", "withdrawn", "applied"],
@@ -38,6 +38,16 @@ export const profileSchema = z.object({
   summary: z.string().min(1),
   constraints: z.array(z.string().min(1)).optional(),
   workAuthorization: z.string().optional(),
+  requiresSponsorship: z.boolean().optional(),
+  willingToRelocate: z.boolean().optional(),
+  phone: z.string().optional(),
+  email: z.string().min(3).optional(),
+  city: z.string().optional(),
+  country: z.string().optional(),
+  resumeFilePath: z.string().optional(),
+  commonAnswers: z
+    .array(z.object({ question: z.string().min(1), answer: z.string().min(1) }))
+    .optional(),
   links: z
     .array(z.object({ label: z.string().min(1), url: z.string().min(1) }))
     .optional(),
@@ -127,7 +137,7 @@ const DEFAULT_NEXT_ACTION: Record<JobStatus, string> = {
   sourced: "Score against the saved profile.",
   shortlisted: "Draft an application packet.",
   drafted: "Human reviews the packet, then mark ready_to_apply.",
-  ready_to_apply: "Human submits on the employer site, then mark applied with a note.",
+  ready_to_apply: "Call linkedin_apply with submit true, or apply on the employer site.",
   applied: "Wait for confirmation; follow up in 3 days.",
   interviewing: "Prep from the packet; log the interview outcome.",
   offer: "Compare with other pipeline offers.",

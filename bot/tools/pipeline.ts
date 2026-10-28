@@ -17,8 +17,8 @@ export default defineTool({
   description: prompt`
     Durable job pipeline. Use upsert to record a role, get or list to inspect
     the board, score to store a match, set_status to move a role, and timeline
-    for the event log. Never mark a job applied unless the human already
-    submitted the application themselves.
+    for the event log. Prefer linkedin_apply to mark LinkedIn Easy Apply jobs
+    applied. Manual set_status applied still requires a note.
   `,
   inputSchema: z.object({
     action: z.enum(["upsert", "get", "list", "score", "set_status", "timeline"]),

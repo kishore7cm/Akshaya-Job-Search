@@ -18,5 +18,6 @@ export default defineEval({
     t.calledTool("profile");
     t.calledTool("pipeline");
     t.notCalledTool("application_packet");
+    t.notCalledTool("linkedin_apply");
   },
 });
