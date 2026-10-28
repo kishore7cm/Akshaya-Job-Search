@@ -1,6 +1,8 @@
 # Akshaya Ramprasad — resume (source of truth)
 
-Use this document and `Akshaya_Ramprasad_resume.pdf` only. Do not invent employers, dates, metrics, or visa status.
+Use this document and `Akshaya_Ramprasad_resume.pdf` only. Do not invent employers, dates, or metrics.
+
+**Work authorization:** H-4 EAD. Authorized to work in the United States. Employer sponsorship is not required.
 
 **Fremont, CA** · 323-687-2875 · Akshayaaramp@gmail.com · https://www.linkedin.com/in/akshayaramprasad
 

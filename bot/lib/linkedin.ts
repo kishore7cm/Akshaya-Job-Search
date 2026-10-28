@@ -148,18 +148,26 @@ export function answerField(
   if (/how many years|years of experience|years.?experience/.test(label) && profile.yearsExperience !== undefined) {
     return { kind: "answer", value: String(profile.yearsExperience) };
   }
-  if (/sponsor|work authorization|visa|authorized to work/.test(label)) {
-    if (profile.requiresSponsorship === undefined && !profile.workAuthorization) {
+  if (/sponsor/.test(label)) {
+    if (profile.requiresSponsorship === undefined) {
+      return field.required
+        ? { kind: "blocked", reason: `Need sponsorship answer for: ${field.label}` }
+        : { kind: "skip" };
+    }
+    return { kind: "answer", value: yesNo(field, profile.requiresSponsorship) };
+  }
+  if (/authorized to work|legally (authorized|allowed) to work|work legally/.test(label)) {
+    const canWork = isUsWorkAuthorized(profile);
+    if (canWork === undefined) {
       return field.required
         ? { kind: "blocked", reason: `Need work-authorization answer for: ${field.label}` }
         : { kind: "skip" };
     }
-    const needsSponsor = profile.requiresSponsorship === true;
-    const authorized = /citizen|green card|authorized|no sponsorship/i.test(profile.workAuthorization ?? "");
-    if (/sponsor/.test(label)) {
-      return { kind: "answer", value: yesNo(field, needsSponsor) };
-    }
-    return { kind: "answer", value: yesNo(field, authorized || !needsSponsor) };
+    return { kind: "answer", value: yesNo(field, canWork) };
+  }
+  if (/visa|immigration|work authorization|employment status|ead/.test(label) && profile.workAuthorization) {
+    const picked = pickAuthorizationOption(field.options, profile.workAuthorization);
+    return { kind: "answer", value: picked ?? profile.workAuthorization };
   }
   if (/relocat/.test(label) && profile.willingToRelocate !== undefined) {
     return { kind: "answer", value: yesNo(field, profile.willingToRelocate) };
@@ -173,6 +181,28 @@ export function answerField(
     return { kind: "blocked", reason: `Unmapped required question: ${field.label}` };
   }
   return { kind: "skip" };
+}
+
+function isUsWorkAuthorized(profile: Profile): boolean | undefined {
+  if (profile.requiresSponsorship === false) return true;
+  if (/citizen|green card|ead|h-?4|authorized/i.test(profile.workAuthorization ?? "")) return true;
+  if (profile.requiresSponsorship === true) return true;
+  if (profile.workAuthorization) return true;
+  return undefined;
+}
+
+function pickAuthorizationOption(options: string[] | undefined, status: string): string | undefined {
+  if (!options || options.length === 0) return undefined;
+  const needle = normalize(status);
+  const exact = options.find((option) => {
+    const n = normalize(option);
+    return n === needle || n.includes(needle) || needle.includes(n);
+  });
+  if (exact) return exact;
+  if (/h-?4|ead/.test(needle)) {
+    return options.find((option) => /h-?4|ead|employment authorization/i.test(option));
+  }
+  return undefined;
 }
 
 function yesNo(field: FormField, value: boolean): string {

@@ -1,9 +1,10 @@
 # Profile
 
-Akshaya's resume is already seeded (`profile` get, `resume.md`, `Akshaya_Ramprasad_resume.pdf`).
+Akshaya's resume and work authorization are seeded (`profile` get, `resume.md`, `Akshaya_Ramprasad_resume.pdf`).
 
-Still needed before applying, because the resume does not say:
+- Work authorization: H-4 EAD (US work authorized)
+- Requires sponsorship: no
 
-- Work authorization (OPT, H-1B, citizen, etc.)
-- Requires sponsorship? yes/no
+Optional to add later:
+
 - Willing to relocate? yes/no

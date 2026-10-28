@@ -38,11 +38,31 @@ export const DEFAULT_PROFILE: Profile = {
   city: "Fremont",
   country: "United States",
   resumeFilePath: DEFAULT_RESUME_PATH,
+  workAuthorization: "H-4 EAD",
+  requiresSponsorship: false,
   links: [
     { label: "LinkedIn", url: "https://www.linkedin.com/in/akshayaramprasad" },
   ],
+  commonAnswers: [
+    {
+      question: "Are you authorized to work in the United States?",
+      answer: "Yes",
+    },
+    {
+      question: "Will you now or in the future require sponsorship for employment visa status?",
+      answer: "No",
+    },
+    {
+      question: "Do you require visa sponsorship?",
+      answer: "No",
+    },
+    {
+      question: "What is your work authorization status?",
+      answer: "H-4 EAD",
+    },
+  ],
   constraints: [
-    "Work authorization and sponsorship are not stated on the resume — ask before answering visa questions.",
+    "Authorized to work in the US on H-4 EAD. Employer sponsorship is not required.",
   ],
   summary: [
     "Customer-facing professional in Fremont, CA with experience across customer support, client support, and marketing strategy, and an M.S. in Marketing Analytics from California State University, Long Beach (Aug 2023–Dec 2024).",

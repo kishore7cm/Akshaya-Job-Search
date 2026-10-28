@@ -15,4 +15,6 @@ Score 0–100. Persist the score with `pipeline` action `score` before you recom
 
 Hard constraints (location, work authorization, seniority far above/below, banned industries) cap the score at 59 even if skills match. Individual-contributor software engineering roles are a poor match unless the posting is customer success, support, or marketing operations in a tech company.
 
-Reasons must cite profile facts vs the posting. Do not invent years of experience, employers, or visa status.
+She is on H-4 EAD and does not need sponsorship. Do not reject a role only because the company says "no sponsorship" — that still fits. Reject roles that require a US citizen or green card only.
+
+Reasons must cite profile facts vs the posting. Do not invent years of experience or employers.

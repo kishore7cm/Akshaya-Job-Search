@@ -29,13 +29,12 @@ export default defineTool({
         found: true,
         source,
         profile,
-        missing:
-          source === "resume"
-            ? [
-                "work authorization / requiresSponsorship (not on the resume)",
-                "willingToRelocate",
-              ]
-            : [],
+        missing: [
+          ...(profile.workAuthorization && profile.requiresSponsorship !== undefined
+            ? []
+            : ["work authorization / requiresSponsorship"]),
+          ...(profile.willingToRelocate === undefined ? ["willingToRelocate"] : []),
+        ],
       };
     }
     if (!profile) {
