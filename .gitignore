@@ -1,0 +1,9 @@
+node_modules
+.env
+.env.local
+.agent-serve
+memory
+.akshaya-job-search
+*.storage-state.json
+playwright-report
+test-results
