@@ -19,5 +19,6 @@ export default defineEval({
     t.calledTool("pipeline");
     t.notCalledTool("application_packet");
     t.notCalledTool("linkedin_apply");
+    t.notCalledTool("external_apply");
   },
 });
