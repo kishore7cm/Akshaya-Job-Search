@@ -46,9 +46,11 @@ npx --yes "@grok/agent-sdk@0.4.0" dev
 
 In the playground: “Log into LinkedIn”. Complete 2FA in the browser it opens. Optional env (never pass these as chat/tool input): `LINKEDIN_EMAIL`, `LINKEDIN_PASSWORD`.
 
+Akshaya Ramprasad's resume is seeded (`profile` get, `bot/sandbox/workspace/resume.md`, and the PDF for uploads). Tell the agent her work authorization before it answers visa/sponsorship questions.
+
 ## Apply
 
-1. Save Akshaya’s profile (phone, email, sponsorship, target roles).
+1. Confirm work authorization / sponsorship (not on the resume), then search.
 2. “Search LinkedIn for Easy Apply roles matching my profile.”
 3. “Preview apply for these job ids.” Easy Apply uses `linkedin_apply`; a company-site Apply button uses `external_apply`.
 4. Approve the call that has `submit: true`.

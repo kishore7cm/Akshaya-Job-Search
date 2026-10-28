@@ -1,5 +1,6 @@
 import type { HostKvApi } from "@grok/agent-sdk";
 import * as z from "zod/v4";
+import { DEFAULT_PROFILE } from "./default-profile.js";
 
 export const JOB_STATUSES = [
   "sourced",
@@ -198,14 +199,18 @@ async function appendEvent(
   return event;
 }
 
-export async function getProfile(kv: HostKvApi): Promise<Profile | null> {
+export async function getProfile(kv: HostKvApi): Promise<Profile> {
   const raw = await kv.get(PROFILE_KEY);
-  if (raw === undefined) return null;
+  if (raw === undefined) return DEFAULT_PROFILE;
   const parsed = profileSchema.safeParse(raw);
   if (!parsed.success) {
     throw new Error("Stored profile is invalid. Save the profile again.");
   }
   return parsed.data;
+}
+
+export async function profileSource(kv: HostKvApi): Promise<"saved" | "resume"> {
+  return (await kv.get(PROFILE_KEY)) === undefined ? "resume" : "saved";
 }
 
 export async function saveProfile(kv: HostKvApi, profile: Profile): Promise<Profile> {

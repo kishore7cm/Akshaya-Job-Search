@@ -13,6 +13,6 @@ Score 0–100. Persist the score with `pipeline` action `score` before you recom
 | 60–74 | Partial overlap | keep sourced, ask the human |
 | 0–59 | Poor overlap or a hard constraint miss | reject, with the blocking gap |
 
-Hard constraints (location, work authorization, seniority far above/below, banned industries) cap the score at 59 even if skills match.
+Hard constraints (location, work authorization, seniority far above/below, banned industries) cap the score at 59 even if skills match. Individual-contributor software engineering roles are a poor match unless the posting is customer success, support, or marketing operations in a tech company.
 
-Reasons must cite profile facts vs the posting. Do not invent years of experience or employers.
+Reasons must cite profile facts vs the posting. Do not invent years of experience, employers, or visa status.

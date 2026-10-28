@@ -1,7 +1,7 @@
 import { prompt } from "@grok/agent-sdk";
 import { defineTool } from "@grok/agent-sdk/tools";
 import * as z from "zod/v4";
-import { getProfile, profileSchema, saveProfile } from "../lib/store.js";
+import { getProfile, profileSchema, profileSource, saveProfile } from "../lib/store.js";
 
 export default defineTool({
   description: prompt`
@@ -21,14 +21,22 @@ export default defineTool({
       : { found: false, dryRun: true },
   async execute({ action, profile }, ctx) {
     if (action === "get") {
-      const current = await getProfile(ctx.host.kv);
-      if (!current) {
-        return {
-          found: false,
-          hint: "No profile saved yet. Ask for target roles, skills, locations, and a short summary, then call save.",
-        };
-      }
-      return { found: true, profile: current };
+      const [profile, source] = await Promise.all([
+        getProfile(ctx.host.kv),
+        profileSource(ctx.host.kv),
+      ]);
+      return {
+        found: true,
+        source,
+        profile,
+        missing:
+          source === "resume"
+            ? [
+                "work authorization / requiresSponsorship (not on the resume)",
+                "willingToRelocate",
+              ]
+            : [],
+      };
     }
     if (!profile) {
       throw new Error("profile is required when action is save.");

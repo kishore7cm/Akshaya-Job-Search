@@ -4,7 +4,7 @@ description: Use when drafting a resume, cover letter, or screening answers for 
 
 # Write an application packet
 
-Work from the saved profile and the job description only.
+Work from the saved profile, `resume.md` / `Akshaya_Ramprasad_resume.pdf`, and the job description only. Every bullet must map to a real Yesvite, Content Culture, Iron Mountain, or Amazon fact.
 
 1. Pull 4–8 posting requirements. Map each to a true profile fact or skip it.
 2. Resume: keep the same history the profile supports. Rewrite bullets toward the posting. Do not add fake metrics.

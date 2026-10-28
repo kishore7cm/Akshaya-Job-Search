@@ -33,7 +33,6 @@ export default defineTool({
   }),
   async execute({ jobIds, submit }, ctx) {
     const profile = await getProfile(ctx.host.kv);
-    if (!profile) throw new Error("Save a profile before applying.");
     const mock = isMockSession(ctx.session.purpose);
     const results = [];
     for (const jobId of jobIds) {
