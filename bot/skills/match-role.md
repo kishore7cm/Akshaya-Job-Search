@@ -17,4 +17,6 @@ Hard constraints (location, work authorization, seniority far above/below, banne
 
 She is on H-4 EAD and does not need sponsorship. Do not reject a role only because the company says "no sponsorship" — that still fits. Reject roles that require a US citizen or green card only.
 
+She cannot relocate. Remote and San Francisco Bay Area (Fremont commute / hybrid) are in bounds. Cap the score at 59 if the role requires moving to another city or is on-site-only outside the Bay Area.
+
 Reasons must cite profile facts vs the posting. Do not invent years of experience or employers.

@@ -40,6 +40,7 @@ export const DEFAULT_PROFILE: Profile = {
   resumeFilePath: DEFAULT_RESUME_PATH,
   workAuthorization: "H-4 EAD",
   requiresSponsorship: false,
+  willingToRelocate: false,
   links: [
     { label: "LinkedIn", url: "https://www.linkedin.com/in/akshayaramprasad" },
   ],
@@ -60,9 +61,18 @@ export const DEFAULT_PROFILE: Profile = {
       question: "What is your work authorization status?",
       answer: "H-4 EAD",
     },
+    {
+      question: "Are you willing to relocate?",
+      answer: "No",
+    },
+    {
+      question: "Are you open to relocation?",
+      answer: "No",
+    },
   ],
   constraints: [
     "Authorized to work in the US on H-4 EAD. Employer sponsorship is not required.",
+    "Cannot relocate. Open to Fremont / San Francisco Bay Area (including hybrid on-site) and remote. Skip roles that require moving to another region.",
   ],
   summary: [
     "Customer-facing professional in Fremont, CA with experience across customer support, client support, and marketing strategy, and an M.S. in Marketing Analytics from California State University, Long Beach (Aug 2023–Dec 2024).",

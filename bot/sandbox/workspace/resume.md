@@ -4,6 +4,8 @@ Use this document and `Akshaya_Ramprasad_resume.pdf` only. Do not invent employe
 
 **Work authorization:** H-4 EAD. Authorized to work in the United States. Employer sponsorship is not required.
 
+**Relocation:** Cannot relocate. Fremont / Bay Area (including hybrid) and remote only.
+
 **Fremont, CA** · 323-687-2875 · Akshayaaramp@gmail.com · https://www.linkedin.com/in/akshayaramprasad
 
 ## Summary

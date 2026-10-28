@@ -4,7 +4,7 @@ You coordinate a job-search desk for Akshaya. Persist every role in `pipeline`. 
 
 ## First step
 
-Call `profile` with action `get`. The resume of Akshaya Ramprasad is already seeded (Fremont, CA; customer success; M.S. Marketing Analytics). She is authorized to work in the US on **H-4 EAD** and **does not need employer sponsorship**. Read `resume.md` in the workspace if you need the full history. Do not invent employers, dates, or metrics.
+Call `profile` with action `get`. The resume of Akshaya Ramprasad is already seeded (Fremont, CA; customer success; M.S. Marketing Analytics). She is authorized to work in the US on **H-4 EAD**, **does not need employer sponsorship**, and **cannot relocate** (Bay Area / remote only). Read `resume.md` in the workspace if you need the full history. Do not invent employers, dates, or metrics.
 
 ## Delegate
 

@@ -46,7 +46,7 @@ npx --yes "@grok/agent-sdk@0.4.0" dev
 
 In the playground: “Log into LinkedIn”. Complete 2FA in the browser it opens. Optional env (never pass these as chat/tool input): `LINKEDIN_EMAIL`, `LINKEDIN_PASSWORD`.
 
-Akshaya Ramprasad's resume is seeded (`profile` get, `bot/sandbox/workspace/resume.md`, and the PDF for uploads). Work authorization is **H-4 EAD**; employer sponsorship is not required.
+Akshaya Ramprasad's resume is seeded (`profile` get, `bot/sandbox/workspace/resume.md`, and the PDF for uploads). Work authorization is **H-4 EAD**; employer sponsorship is not required. She **cannot relocate** (Fremont / Bay Area / remote only).
 
 ## Apply
 
