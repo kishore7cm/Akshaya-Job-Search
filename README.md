@@ -1,12 +1,13 @@
 # Akshaya Job Search
 
-Agent SDK desk that searches LinkedIn, fills Easy Apply, and tracks the pipeline.
+Agent SDK desk that searches LinkedIn, applies on Easy Apply **and** company ATS pages, and tracks the pipeline.
 
 | Subagent | Job |
 | --- | --- |
-| **scout** | LinkedIn Easy Apply search and match scoring |
+| **scout** | LinkedIn search, match scoring, Easy Apply vs off-site Apply URLs |
 | **writer** | Tailored resume, cover letter, screening answers |
-| **applier** | Local Chrome LinkedIn session and Easy Apply submit |
+| **applier** | LinkedIn Easy Apply in local Chrome |
+| **ats** | Greenhouse, Lever, Ashby, Workday, and other Apply-on-company-site forms |
 | **tracker** | Pipeline board, follow-up reminders, weekday digest |
 
 LinkedIn has no public apply API for candidates, so apply runs in **your** Chrome. A cloud/hosted agent cannot finish LinkedIn login or 2FA. Automated use can also get a LinkedIn account restricted; keep the daily cap (15) and the per-job approval on Submit.
@@ -49,10 +50,10 @@ In the playground: “Log into LinkedIn”. Complete 2FA in the browser it opens
 
 1. Save Akshaya’s profile (phone, email, sponsorship, target roles).
 2. “Search LinkedIn for Easy Apply roles matching my profile.”
-3. “Preview Easy Apply for these job ids, then apply to the ones that are clean.”
-4. Approve the `linkedin_apply` call that has `submit: true`.
+3. “Preview apply for these job ids.” Easy Apply uses `linkedin_apply`; a company-site Apply button uses `external_apply`.
+4. Approve the call that has `submit: true`.
 
-External ATS buttons (Greenhouse, Lever, Workday) are skipped.
+Workday and similar sites that demand a new account stop and ask you to sign in in the same Chrome profile. The ATS agent does not register accounts.
 
 ## Check it
 

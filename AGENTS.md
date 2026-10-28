@@ -18,8 +18,8 @@ Run the CLI under Node, never Bun.
 
 ## Layout
 
-- `bot/instructions.md` routes to `scout`, `writer`, `applier`, and `tracker`.
-- `bot/tools/linkedin_session.ts`, `linkedin_search.ts`, and `linkedin_apply.ts` drive Easy Apply on a local Chrome session.
+- `bot/instructions.md` routes to `scout`, `writer`, `applier`, `ats`, and `tracker`.
+- `linkedin_apply` is Easy Apply. `external_apply` follows company-site Apply buttons.
 - `bot/lib/linkedin.ts` owns search URLs, answer mapping, and the daily cap.
 - `bot/lib/store.ts` is the status machine and JSON store. Never discovered.
 - `evals/` is filesystem evals (`evals/evals.config.ts` required).

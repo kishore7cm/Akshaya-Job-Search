@@ -42,6 +42,16 @@ export default defineTool({
         results.push({ jobId, status: "skipped", detail: "Unknown pipeline job id." });
         continue;
       }
+      if (job.applyKind === "external") {
+        results.push({
+          jobId,
+          status: "external",
+          applyUrl: job.applyUrl ?? null,
+          ats: job.ats ?? null,
+          detail: "This Apply button leaves LinkedIn. Delegate to the ats subagent / external_apply.",
+        });
+        continue;
+      }
       if (!job.url) {
         results.push({ jobId, status: "skipped", detail: "Job has no LinkedIn URL." });
         continue;

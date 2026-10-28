@@ -1,5 +1,5 @@
 import type { HostKvApi } from "@grok/agent-sdk";
-import type { ApplicationPacket, Profile } from "./store.js";
+import type { ApplicationPacket, AtsName, Profile } from "./store.js";
 
 export const MAX_APPLY_PER_DAY = 15;
 export const MAX_APPLY_PER_CALL = 3;
@@ -10,6 +10,8 @@ export const LOGIN_TIMEOUT_MS = 5 * 60_000;
 export const STORAGE_STATE_PATH = "linkedin/storage-state.json";
 export const RATE_PREFIX = "linkedin:rate:";
 
+export type ApplyKindFilter = "easy_apply" | "external" | "all";
+
 export type LinkedInJob = {
   linkedinId: string;
   title: string;
@@ -19,6 +21,9 @@ export type LinkedInJob = {
   description: string;
   easyApply: boolean;
   alreadyApplied: boolean;
+  applyKind: "easy_apply" | "external" | "unknown";
+  applyUrl?: string;
+  ats?: AtsName;
 };
 
 export type FormField = {
@@ -65,12 +70,12 @@ export function linkedinIdFromUrl(url: string): string | null {
 export function linkedinSearchUrl(input: {
   keywords: string;
   location?: string;
-  easyApply?: boolean;
+  applyKind?: ApplyKindFilter;
 }): string {
   const params = new URLSearchParams();
   params.set("keywords", input.keywords);
   if (input.location) params.set("location", input.location);
-  if (input.easyApply !== false) params.set("f_AL", "true");
+  if (input.applyKind === "easy_apply") params.set("f_AL", "true");
   params.set("origin", "JOB_SEARCH_PAGE_JOB_FILTER");
   params.set("sortBy", "DD");
   return `https://www.linkedin.com/jobs/search/?${params.toString()}`;
@@ -117,6 +122,18 @@ export function answerField(
   if (/^first name$|given name/.test(label)) return { kind: "answer", value: first };
   if (/^last name$|family name|surname/.test(label)) return { kind: "answer", value: last };
   if (/^full name$|^name$/.test(label)) return { kind: "answer", value: profile.fullName };
+  const linkedin = profile.links?.find(
+    (link) => /linkedin/i.test(link.label) || /linkedin\.com/i.test(link.url),
+  );
+  if (/linkedin/.test(label) && linkedin) return { kind: "answer", value: linkedin.url };
+  const github = profile.links?.find(
+    (link) => /github/i.test(link.label) || /github\.com/i.test(link.url),
+  );
+  if (/github/.test(label) && github) return { kind: "answer", value: github.url };
+  const site = profile.links?.find((link) => /portfolio|website|personal/i.test(link.label));
+  if (/(portfolio|website|personal site|homepage)/.test(label) && site) {
+    return { kind: "answer", value: site.url };
+  }
   if (/email/.test(label) && profile.email) return { kind: "answer", value: profile.email };
   if (/(phone|mobile|cell)/.test(label) && profile.phone) return { kind: "answer", value: profile.phone };
   if (/city/.test(label) && (profile.city || profile.locations[0])) {
@@ -223,19 +240,35 @@ export async function recordApply(
   return next;
 }
 
-export function mockJobs(keywords: string): LinkedInJob[] {
-  return [
-    {
-      linkedinId: "1001",
-      title: `${keywords} (mock)`,
-      company: "Acme",
-      location: "Remote",
-      url: "https://www.linkedin.com/jobs/view/1001",
-      description: `Mock Easy Apply listing for ${keywords}.`,
-      easyApply: true,
-      alreadyApplied: false,
-    },
-  ];
+export function mockJobs(keywords: string, applyKind: ApplyKindFilter = "all"): LinkedInJob[] {
+  const easy: LinkedInJob = {
+    linkedinId: "1001",
+    title: `${keywords} (mock Easy Apply)`,
+    company: "Acme",
+    location: "Remote",
+    url: "https://www.linkedin.com/jobs/view/1001",
+    description: `Mock Easy Apply listing for ${keywords}.`,
+    easyApply: true,
+    alreadyApplied: false,
+    applyKind: "easy_apply",
+    ats: "linkedin",
+  };
+  const external: LinkedInJob = {
+    linkedinId: "1002",
+    title: `${keywords} (mock Greenhouse)`,
+    company: "Globex",
+    location: "Remote",
+    url: "https://www.linkedin.com/jobs/view/1002",
+    description: `Mock company-site apply for ${keywords}.`,
+    easyApply: false,
+    alreadyApplied: false,
+    applyKind: "external",
+    applyUrl: "https://boards.greenhouse.io/globex/jobs/1002",
+    ats: "greenhouse",
+  };
+  if (applyKind === "easy_apply") return [easy];
+  if (applyKind === "external") return [external];
+  return [easy, external];
 }
 
 export function isMockSession(purpose?: string): boolean {

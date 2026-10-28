@@ -7,7 +7,7 @@ description: Use when logging into LinkedIn, searching Easy Apply jobs, or submi
 Session lives on the laptop. Hosted Cursor deploys cannot complete LinkedIn login.
 
 1. `linkedin_session` `status`. If `ready` is false, `login` locally and finish any 2FA in the Chrome window.
-2. `linkedin_search` using the profile's target roles. It upserts Easy Apply listings into `pipeline`.
+2. `linkedin_search` using the profile's target roles. It upserts listings and labels Easy Apply vs off-site Apply.
 3. Score with scout before mass-applying. Default bar: match score 75+.
 4. `linkedin_apply` `jobIds` `submit: false` to fill and report blockers.
 5. Put missing answers on `profile.commonAnswers` or `application_packet.screeningAnswers`.

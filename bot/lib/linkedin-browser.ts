@@ -2,11 +2,13 @@ import type { HostFilesApi } from "@grok/agent-sdk";
 import {
   LOGIN_TIMEOUT_MS,
   STORAGE_STATE_PATH,
+  type ApplyKindFilter,
   type FormField,
   type LinkedInJob,
   linkedinIdFromUrl,
   linkedinSearchUrl,
 } from "./linkedin.js";
+import { classifyAts, type AtsName } from "./ats.js";
 
 const FILES_SCOPE = { scope: "deployment" as const };
 
@@ -89,7 +91,7 @@ type Opened = {
   persist: () => Promise<void>;
 };
 
-async function openLinkedIn(files: HostFilesApi): Promise<Opened> {
+export async function openLinkedIn(files: HostFilesApi): Promise<Opened> {
   const pw = await loadPlaywright();
   const cdp = cdpUrl();
   if (cdp) {
@@ -200,11 +202,17 @@ async function isLoggedIn(page: Page): Promise<boolean> {
 
 export async function searchLinkedInJobs(
   files: HostFilesApi,
-  input: { keywords: string; location?: string; limit: number },
+  input: { keywords: string; location?: string; limit: number; applyKind?: ApplyKindFilter },
 ): Promise<LinkedInJob[]> {
   const opened = await openLinkedIn(files);
   try {
-    await opened.page.goto(linkedinSearchUrl({ keywords: input.keywords, location: input.location }), {
+    await opened.page.goto(
+      linkedinSearchUrl({
+        keywords: input.keywords,
+        location: input.location,
+        applyKind: input.applyKind ?? "all",
+      }),
+      {
       waitUntil: "domcontentloaded",
       timeout: 45_000,
     });
@@ -213,9 +221,12 @@ export async function searchLinkedInJobs(
       throw new Error("LinkedIn session expired. Call linkedin_session login, then retry.");
     }
     await opened.page.waitForTimeout(1500);
-    const jobs = await readJobCards(opened.page, input.limit);
+    const fetched = await readJobCards(opened.page, Math.max(input.limit, 10));
+    const wanted = input.applyKind ?? "all";
+    const jobs =
+      wanted === "all" ? fetched : fetched.filter((job) => job.applyKind === wanted);
     await opened.persist();
-    return jobs;
+    return jobs.slice(0, input.limit);
   } finally {
     await opened.close();
   }
@@ -250,7 +261,7 @@ async function readJobCards(page: Page, limit: number): Promise<LinkedInJob[]> {
         (await textOf(page.locator("#job-details, .jobs-description, .jobs-box__html-content").first())) ||
         title;
       const alreadyApplied = await page.getByText(/applied/i).first().isVisible().catch(() => false);
-      const easyApply = await hasEasyApply(page);
+      const apply = await inspectApplyControls(page);
       const url = page.url().includes(linkedinId)
         ? page.url()
         : `https://www.linkedin.com/jobs/view/${linkedinId}`;
@@ -261,8 +272,11 @@ async function readJobCards(page: Page, limit: number): Promise<LinkedInJob[]> {
         location,
         url,
         description: description.slice(0, 4000),
-        easyApply,
+        easyApply: apply.kind === "easy_apply",
         alreadyApplied,
+        applyKind: apply.kind,
+        applyUrl: apply.applyUrl,
+        ats: apply.ats,
       });
     } catch {
       continue;
@@ -280,13 +294,75 @@ async function textOf(locator: import("playwright").Locator): Promise<string> {
   }
 }
 
-async function hasEasyApply(page: Page): Promise<boolean> {
+export async function inspectApplyControls(page: Page): Promise<{
+  kind: "easy_apply" | "external" | "unknown";
+  applyUrl?: string;
+  ats?: AtsName;
+}> {
   const easy = page.getByRole("button", { name: /easy apply/i });
-  if (await easy.first().isVisible().catch(() => false)) return true;
-  const linkedinApply = page.locator('[aria-label^="LinkedIn Apply to"], button.jobs-apply-button');
-  if (await linkedinApply.first().isVisible().catch(() => false)) return true;
-  const external = page.getByRole("button", { name: /^apply$/i });
-  return !(await external.first().isVisible().catch(() => false));
+  const linkedinApply = page.locator('[aria-label^="LinkedIn Apply to"]');
+  if (
+    (await easy.first().isVisible().catch(() => false)) ||
+    (await linkedinApply.first().isVisible().catch(() => false))
+  ) {
+    return { kind: "easy_apply", ats: "linkedin" };
+  }
+  const offsite = page.locator(
+    [
+      'a[href*="greenhouse.io"]',
+      'a[href*="lever.co"]',
+      'a[href*="ashbyhq.com"]',
+      'a[href*="myworkdayjobs.com"]',
+      'a[href*="myworkday.com"]',
+      'a[href*="smartrecruiters.com"]',
+      'a[href*="icims.com"]',
+      'a[href*="workable.com"]',
+      "a.jobs-apply-button[href]",
+    ].join(", "),
+  );
+  if (await offsite.first().isVisible().catch(() => false)) {
+    const href = await offsite.first().getAttribute("href");
+    if (href && !/linkedin\.com/i.test(href)) {
+      return { kind: "external", applyUrl: href, ats: classifyAts(href) };
+    }
+  }
+  const external = page.getByRole("button", { name: /^(apply|apply on company website)$/i });
+  if (await external.first().isVisible().catch(() => false)) {
+    return { kind: "external", ats: "generic" };
+  }
+  return { kind: "unknown" };
+}
+
+export async function resolveOffsiteApply(
+  files: HostFilesApi,
+  linkedinJobUrl: string,
+): Promise<{ applyUrl: string; ats: AtsName }> {
+  const opened = await openLinkedIn(files);
+  try {
+    await opened.page.goto(linkedinJobUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
+    const inspected = await inspectApplyControls(opened.page);
+    if (inspected.applyUrl) {
+      return { applyUrl: inspected.applyUrl, ats: inspected.ats ?? classifyAts(inspected.applyUrl) };
+    }
+    const apply = opened.page.getByRole("link", { name: /^apply/i }).or(
+      opened.page.getByRole("button", { name: /^(apply|apply on company website)$/i }),
+    );
+    if (!(await apply.first().isVisible().catch(() => false))) {
+      throw new Error("No off-site Apply button on this LinkedIn job.");
+    }
+    const popupPromise = opened.page.waitForEvent("popup", { timeout: 8_000 }).catch(() => null);
+    await apply.first().click();
+    const popup = await popupPromise;
+    const dest = popup ? popup.url() : opened.page.url();
+    if (popup) await popup.close().catch(() => undefined);
+    if (/linkedin\.com/i.test(dest)) {
+      throw new Error("Apply stayed on LinkedIn. This job may be Easy Apply — use linkedin_apply.");
+    }
+    await opened.persist();
+    return { applyUrl: dest, ats: classifyAts(dest) };
+  } finally {
+    await opened.close();
+  }
 }
 
 export type ApplyOutcome = {
@@ -333,7 +409,7 @@ export async function applyEasyApply(
         url: opened.page.url(),
         blockers: [],
         filled: [],
-        detail: "No Easy Apply button. External ATS jobs are skipped.",
+        detail: "No Easy Apply button. Use external_apply for company-site Apply links.",
       };
     }
     await applyButton.click();
@@ -431,7 +507,6 @@ async function findApplyButton(page: Page): Promise<import("playwright").Locator
   const candidates = [
     page.getByRole("button", { name: /easy apply/i }),
     page.locator('[aria-label^="LinkedIn Apply to"]'),
-    page.locator("button.jobs-apply-button"),
   ];
   for (const candidate of candidates) {
     if (await candidate.first().isVisible().catch(() => false)) return candidate.first();
@@ -454,7 +529,7 @@ async function dismissModal(page: Page): Promise<void> {
   }
 }
 
-async function collectFields(page: Page): Promise<FormField[]> {
+export async function collectFields(page: Page): Promise<FormField[]> {
   return page.evaluate(() => {
     const roots: ParentNode[] = [document];
     const all = document.querySelectorAll("*");
@@ -497,7 +572,7 @@ async function collectFields(page: Page): Promise<FormField[]> {
   });
 }
 
-async function fillField(
+export async function fillField(
   page: Page,
   field: FormField,
   value: string,

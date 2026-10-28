@@ -16,6 +16,22 @@ export const JOB_STATUSES = [
 
 export type JobStatus = (typeof JOB_STATUSES)[number];
 
+export const APPLY_KINDS = ["easy_apply", "external", "unknown"] as const;
+export type ApplyKind = (typeof APPLY_KINDS)[number];
+
+export const ATS_NAMES = [
+  "linkedin",
+  "greenhouse",
+  "lever",
+  "ashby",
+  "workday",
+  "smartrecruiters",
+  "icims",
+  "workable",
+  "generic",
+] as const;
+export type AtsName = (typeof ATS_NAMES)[number];
+
 const TRANSITIONS: Record<JobStatus, readonly JobStatus[]> = {
   sourced: ["shortlisted", "drafted", "ready_to_apply", "applied", "rejected", "withdrawn"],
   shortlisted: ["drafted", "ready_to_apply", "applied", "sourced", "rejected", "withdrawn"],
@@ -70,6 +86,9 @@ export const jobSchema = z.object({
   nextAction: z.string().optional(),
   followUpAt: z.string().optional(),
   appliedAt: z.string().optional(),
+  applyKind: z.enum(APPLY_KINDS).optional(),
+  applyUrl: z.string().optional(),
+  ats: z.enum(ATS_NAMES).optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
@@ -233,6 +252,9 @@ export async function upsertJob(
     url?: string;
     source?: string;
     description: string;
+    applyKind?: ApplyKind;
+    applyUrl?: string;
+    ats?: AtsName;
   },
 ): Promise<{ job: Job; created: boolean }> {
   const id = input.id ?? slugId(input.company, input.title);
@@ -253,6 +275,9 @@ export async function upsertJob(
     nextAction: existing?.nextAction,
     followUpAt: existing?.followUpAt,
     appliedAt: existing?.appliedAt,
+    applyKind: input.applyKind ?? existing?.applyKind,
+    applyUrl: input.applyUrl ?? existing?.applyUrl,
+    ats: input.ats ?? existing?.ats,
     createdAt: existing?.createdAt ?? timestamp,
     updatedAt: timestamp,
   };
